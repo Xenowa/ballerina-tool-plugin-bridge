@@ -1,4 +1,4 @@
-rootProject.name = 'ballerina-tool-plugin-link'
+rootProject.name = 'ballerina-tool-plugin-bridge'
 include 'CustomCompilerPlugin'
 include 'BridgeCommand'
 
