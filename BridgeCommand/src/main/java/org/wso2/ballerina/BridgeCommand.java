@@ -5,17 +5,22 @@ import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -99,25 +104,63 @@ public class BridgeCommand implements BLauncherCmd {
             Module module = project.currentPackage().module(moduleId);
             
             // Load the compiler plugin
-            URLClassLoader externalJarClassLoader = getUrlClassLoader();
+             URLClassLoader externalJarClassLoader = getUrlClassLoader();
+            try {
+                Class<?> aClass = externalJarClassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
 
-            // Read common interface implementations
-            ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
-                    ToolAndCompilerPluginBridge.class,
-                    externalJarClassLoader);
+                // Check value of interface field before setting new message:
+                Method getMessageFromTool = aClass.getDeclaredMethod("getMessageFromTool", null);
+                Object invoke = getMessageFromTool.invoke(null, null);
+                System.out.println((String) invoke); // null
 
-            // Iterate through the loaded interfaces
-            String messageFromTool = "Sent from Ballerina Scan Tool";
-            for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
-                // Call the interface method and pass a context
-                externalScannerJar.sendMessageFromTool(messageFromTool);
+                // Using reflection set a new message at runtime:
+                String messageFromTool = "Sent from Ballerina Scan Tool";
+                Field reflectedMessage = aClass.getDeclaredField("messageFromTool");
+                reflectedMessage.setAccessible(true); // Make private field accessible
+                reflectedMessage.set(null, messageFromTool);
+
+                // check if new message is set:
+                invoke = getMessageFromTool.invoke(null, null);
+                System.out.println((String) invoke); // Sent from Ballerina Scan Tool
+
+                if (module.isDefaultModule()) {
+                    // Compile the project and engage the plugin once
+                    // If context has been passed correctly it will be displayed in the console
+                    project.currentPackage().getCompilation(); // null
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
 
-            if (module.isDefaultModule()) {
-                // Compile the project and engage the plugin once
-                // If context has been passed correctly it will be displayed in the console
-                project.currentPackage().getCompilation();
-            }
+            // ================
+            // Previous Attempt
+            // ================
+//            // Load the compiler plugin
+//            URLClassLoader externalJarClassLoader = getUrlClassLoader();
+//            // Read common interface implementations
+//            ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
+//                    ToolAndCompilerPluginBridge.class, externalJarClassLoader);
+//
+//            // Iterate through the loaded interfaces
+//            String messageFromTool = "Sent from Ballerina Scan Tool";
+//            for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
+//                // Call the interface method and pass a context
+//                externalScannerJar.sendMessageFromTool(messageFromTool);
+//            }
+//
+//            if (module.isDefaultModule()) {
+//                // Compile the project and engage the plugin once
+//                // If context has been passed correctly it will be displayed in the console
+//                project.currentPackage().getCompilation();
+//            }
         });
 
         outputStream.println("bridge successful!");
@@ -134,8 +177,7 @@ public class BridgeCommand implements BLauncherCmd {
             throw new RuntimeException(e);
         }
 
-        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl},
-                CustomToolClassLoader.getPlatformClassLoader());
+        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
         return externalJarClassLoader;
     }
 
