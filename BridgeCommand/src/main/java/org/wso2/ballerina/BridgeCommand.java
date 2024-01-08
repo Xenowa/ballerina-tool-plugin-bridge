@@ -1,6 +1,7 @@
 package org.wso2.ballerina;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -101,8 +102,8 @@ public class BridgeCommand implements BLauncherCmd {
             URLClassLoader externalJarClassLoader = getUrlClassLoader();
 
             // Read common interface implementations
-            ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
-                    ToolAndCompilerPluginBridge.class, externalJarClassLoader);
+            ServiceLoader<org.wso2.ballerina.ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
+                    org.wso2.ballerina.ToolAndCompilerPluginBridge.class, externalJarClassLoader);
 
             // Iterate through the loaded interfaces
             String messageFromTool = "Sent from Ballerina Scan Tool";
@@ -125,14 +126,15 @@ public class BridgeCommand implements BLauncherCmd {
         URL jarUrl;
 
         try {
-            jarUrl = new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0-all.jar")
+            jarUrl = new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0.jar")
                     .toURI()
                     .toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
 
-        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
+         URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
+
         return externalJarClassLoader;
     }
 
