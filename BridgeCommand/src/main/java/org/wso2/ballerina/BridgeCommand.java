@@ -1,11 +1,9 @@
 package org.wso2.ballerina;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
@@ -14,15 +12,10 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ServiceLoader;
 
 @CommandLine.Command(name = "bridge", description = "Link with compiler plugins")
 public class BridgeCommand implements BLauncherCmd {
@@ -102,11 +95,10 @@ public class BridgeCommand implements BLauncherCmd {
         project.currentPackage().moduleIds().forEach(moduleId -> {
             // Get access to the project modules
             Module module = project.currentPackage().module(moduleId);
-            
-            // Load the compiler plugin
-             URLClassLoader externalJarClassLoader = getUrlClassLoader();
+
+            // Reflection will only work if a copy of the compiler plugin is placed in the bre/libs folder
             try {
-                Class<?> aClass = externalJarClassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
+                Class<?> aClass = ClassLoader.getSystemClassLoader().loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
 
                 // Check value of interface field before setting new message:
                 Method getMessageFromTool = aClass.getDeclaredMethod("getMessageFromTool", null);
@@ -123,11 +115,6 @@ public class BridgeCommand implements BLauncherCmd {
                 invoke = getMessageFromTool.invoke(null, null);
                 System.out.println((String) invoke); // Sent from Ballerina Scan Tool
 
-                if (module.isDefaultModule()) {
-                    // Compile the project and engage the plugin once
-                    // If context has been passed correctly it will be displayed in the console
-                    project.currentPackage().getCompilation(); // null
-                }
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -140,45 +127,14 @@ public class BridgeCommand implements BLauncherCmd {
                 throw new RuntimeException(e);
             }
 
-            // ================
-            // Previous Attempt
-            // ================
-//            // Load the compiler plugin
-//            URLClassLoader externalJarClassLoader = getUrlClassLoader();
-//            // Read common interface implementations
-//            ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
-//                    ToolAndCompilerPluginBridge.class, externalJarClassLoader);
-//
-//            // Iterate through the loaded interfaces
-//            String messageFromTool = "Sent from Ballerina Scan Tool";
-//            for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
-//                // Call the interface method and pass a context
-//                externalScannerJar.sendMessageFromTool(messageFromTool);
-//            }
-//
-//            if (module.isDefaultModule()) {
-//                // Compile the project and engage the plugin once
-//                // If context has been passed correctly it will be displayed in the console
-//                project.currentPackage().getCompilation();
-//            }
+            if (module.isDefaultModule()) {
+                // Compile the project and engage the plugin once
+                // If context has been passed correctly it will be displayed in the console
+                project.currentPackage().getCompilation(); // Reflection API Message: Sent from Ballerina Scan Tool
+            }
         });
 
         outputStream.println("bridge successful!");
-    }
-
-    private URLClassLoader getUrlClassLoader() {
-        URL jarUrl;
-
-        try {
-            jarUrl = new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0-all.jar")
-                    .toURI()
-                    .toURL();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
-        return externalJarClassLoader;
     }
 
     public String checkPath() {
