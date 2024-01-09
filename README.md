@@ -32,11 +32,11 @@ The following software should be installed locally
 
 ## Getting started
 
-1. Create the bal bridge tool by following the
-   instructions [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/tree/main/BridgeCommand)
-
-2. Create the custom compiler plugin by following the
+1. Create the custom compiler plugin by following the
    instructions [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/tree/main/CustomCompilerPlugin)
+
+2. Create the bal bridge tool by following the
+   instructions [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/tree/main/BridgeCommand)
 
 3. Navigate to the test-bridge-command directory
 

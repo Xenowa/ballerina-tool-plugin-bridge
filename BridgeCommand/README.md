@@ -23,32 +23,34 @@ bal bridge
 - Pass a context from the tool to a compiler plugin
 
 ## Usage (Local)
+1. Replace the `jarURL` [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/blob/thin-jar-service-loading/BridgeCommand/src/main/java/org/wso2/ballerina/BridgeCommand.java#L128)
+   with the absolute path to the compiler plugin
 
-1. Run and build jar file
+2. Run and build jar file
 
 ```cmd
 gradlew clean build -p BridgeCommand
 ```
 
-2. Navigate to the tool-bridge directory
+3. Navigate to the tool-bridge directory
 
 ```cmd
 cd tool-bridge
 ```
 
-3. Generate a bala file
+4. Generate a bala file
 
 ```cmd
 bal pack
 ```
 
-4. Push the bala file to local repository
+5. Push the bala file to local repository
 
 ```cmd
 bal push --repository=local
 ```
 
-5. Move the tool_bridge to the central.ballerina.io, bala folder
+6. Move the tool_bridge to the central.ballerina.io, bala folder
 
 ```
 📦<USER_HOME>/.ballerina/repositories/central.ballerina.io
@@ -58,7 +60,7 @@ bal push --repository=local
 📦local
 ```
 
-6. modify the .config folders following files
+7. modify the .config folders following files
 
 ```
 📦<USER_HOME>/.ballerina
@@ -67,7 +69,7 @@ bal push --repository=local
     ┗**📜dist-2201.8.2.toml**
 ```
 
-7. Include the tool details in them as follows
+8. Include the tool details in them as follows
 
 ```
 # (bal-tools.toml)
