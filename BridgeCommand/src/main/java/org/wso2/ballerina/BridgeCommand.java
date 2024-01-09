@@ -1,7 +1,6 @@
 package org.wso2.ballerina;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -133,7 +132,8 @@ public class BridgeCommand implements BLauncherCmd {
             throw new RuntimeException(e);
         }
 
-         URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
+         URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl},
+                 this.getClass().getClassLoader());
 
         return externalJarClassLoader;
     }
