@@ -23,7 +23,7 @@ bal bridge
 - Pass a context from the tool to a compiler plugin
 
 ## Usage (Local)
-1. Replace the `jarURL` (here)[https://github.com/Xenowa/ballerina-tool-plugin-bridge/blob/thin-jar-service-loading/BridgeCommand/src/main/java/org/wso2/ballerina/BridgeCommand.java#L128]
+1. Replace the `jarURL` [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/blob/thin-jar-service-loading/BridgeCommand/src/main/java/org/wso2/ballerina/BridgeCommand.java#L128)
    with the absolute path to the compiler plugin
 
 2. Run and build jar file
