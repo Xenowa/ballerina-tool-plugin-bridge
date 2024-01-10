@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/BridgeCommand" />
+            <option value="$PROJECT_DIR$/BridgeInterface" />
             <option value="$PROJECT_DIR$/CustomCompilerPlugin" />
           </set>
         </option>

@@ -100,15 +100,17 @@ public class BridgeCommand implements BLauncherCmd {
             // Load the compiler plugin
             URLClassLoader externalJarClassLoader = getUrlClassLoader();
 
-            // Read common interface implementations
-            ServiceLoader<org.wso2.ballerina.ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
-                    org.wso2.ballerina.ToolAndCompilerPluginBridge.class, externalJarClassLoader);
-
-            // Iterate through the loaded interfaces
-            String messageFromTool = "Sent from Ballerina Scan Tool";
-            for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
-                // Call the interface method and pass a context
-                externalScannerJar.sendMessageFromTool(messageFromTool);
+            // Read common interface implementations (Interface Plugin needs to be placed in 'bre/libs')
+            try {
+                ServiceLoader<ToolAndCompilerPluginBridge> serviceLoader = ServiceLoader.load(
+                        ToolAndCompilerPluginBridge.class,
+                        externalJarClassLoader);
+                String messageFromTool = "Sent from Ballerina Scan Tool";
+                for (ToolAndCompilerPluginBridge service : serviceLoader) {
+                    service.sendMessageFromTool(messageFromTool);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
 
             if (module.isDefaultModule()) {
@@ -122,18 +124,20 @@ public class BridgeCommand implements BLauncherCmd {
     }
 
     private URLClassLoader getUrlClassLoader() {
-        URL jarUrl;
+        List<URL> jarURLs = new ArrayList<>();
 
+        // Adding Any number of compiler plugins which implements the bridge interface
         try {
-            jarUrl = new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0.jar")
-                    .toURI()
-                    .toURL();
+            jarURLs.add(
+                    new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0.jar")
+                            .toURI()
+                            .toURL()       
+            );
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
 
-         URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl},
-                 this.getClass().getClassLoader());
+         URLClassLoader externalJarClassLoader = new URLClassLoader(jarURLs.toArray(jarURLs.toArray(new URL[0])));
 
         return externalJarClassLoader;
     }
