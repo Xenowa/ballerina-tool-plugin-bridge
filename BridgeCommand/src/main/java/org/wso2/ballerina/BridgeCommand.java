@@ -97,21 +97,27 @@ public class BridgeCommand implements BLauncherCmd {
             // Get access to the project modules
             Module module = project.currentPackage().module(moduleId);
 
-            // Load the compiler plugin
-            URLClassLoader externalJarClassLoader = getUrlClassLoader();
+//            // Load the compiler plugin
+//            URLClassLoader externalJarClassLoader = getUrlClassLoader();
+//
+//            // Read common interface implementations
+//            try {
+//                Class<?> serviceInterface = externalJarClassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
+//                ServiceLoader<?> serviceLoader = ServiceLoader.load(serviceInterface, externalJarClassLoader);
+//
+//                String messageFromTool = "Sent from Ballerina Scan Tool";
+//                for (Object service : serviceLoader) {
+//                    service.getClass()
+//                            .getMethod("sendMessageFromTool", String.class)
+//                            .invoke(service, messageFromTool);
+//                }
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
 
-            // Read common interface implementations (Interface Plugin needs to be placed in 'bre/libs')
-            try {
-                ServiceLoader<ToolAndCompilerPluginBridge> serviceLoader = ServiceLoader.load(
-                        ToolAndCompilerPluginBridge.class,
-                        externalJarClassLoader);
-                String messageFromTool = "Sent from Ballerina Scan Tool";
-                for (ToolAndCompilerPluginBridge service : serviceLoader) {
-                    service.sendMessageFromTool(messageFromTool);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            // Using a factory to pass context
+            String messageFromTool = "Sent from Ballerina Scan Tool";
+            MessageContextFactory.init(messageFromTool);
 
             if (module.isDefaultModule()) {
                 // Compile the project and engage the plugin once
@@ -126,13 +132,17 @@ public class BridgeCommand implements BLauncherCmd {
     private URLClassLoader getUrlClassLoader() {
         List<URL> jarURLs = new ArrayList<>();
 
-        // Adding Any number of compiler plugins which implements the bridge interface
+        // This is the correct way, as we do not expect users to copy stuff to bre/libs
         try {
-            jarURLs.add(
-                    new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0.jar")
-                            .toURI()
-                            .toURL()       
-            );
+            // Adding the interface plugin to load from the URLCLassLoader
+            jarURLs.add(new File("C:\\Users\\Tharana Wanigaratne\\Desktop\\ballerina-tool-plugin-bridge\\BridgeInterface\\build\\libs\\BridgeInterface-1.0.jar")
+                    .toURI()
+                    .toURL());
+
+            // Adding Any number of compiler plugins which implements the bridge interface
+            jarURLs.add(new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0-all.jar")
+                    .toURI()
+                    .toURL());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
