@@ -6,7 +6,7 @@ public class MessageContextFactory {
     public static void init(String messageFromTool){
         if(MessageContextFactory.messageFromTool == null){
             MessageContextFactory.messageFromTool = messageFromTool;
-            System.out.println("Message set in factory!");
+            System.out.println("Message set in factory: " + MessageContextFactory.getContext());
         }
     }
 

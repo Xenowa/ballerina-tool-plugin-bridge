@@ -1,5 +1,33 @@
 # Ballerina Tool & Plugin linking
 
+```mermaid
+sequenceDiagram
+    %% For defining states, participants need to be defined
+    participant BridgeCommand
+    participant MessageContextFactory
+    participant Project API
+    participant CustomCompilerPlugin
+    
+    BridgeCommand ->> MessageContextFactory: Set a object
+    activate BridgeCommand
+    %% Activate state
+    activate MessageContextFactory
+    %% Deactivate state
+    deactivate MessageContextFactory
+    BridgeCommand ->> Project API: Perform compilation
+    note right of MessageContextFactory: In the current implementation static state seems to get lost
+    activate Project API
+    Project API ->> CustomCompilerPlugin: Trigger init method
+    activate CustomCompilerPlugin
+    CustomCompilerPlugin ->> MessageContextFactory: Trigger get context method
+    activate MessageContextFactory
+    MessageContextFactory ->> CustomCompilerPlugin: Receive object
+    deactivate MessageContextFactory
+    deactivate Project API
+    deactivate CustomCompilerPlugin
+    deactivate BridgeCommand
+```
+
 Ballerina language has two main extension points:
 - Ballerina Tools
 - Ballerina Compiler Plugins
