@@ -1,5 +1,31 @@
 # Ballerina Tool & Plugin linking
 
+```mermaid
+sequenceDiagram
+    %% For defining states, participants need to be defined
+    participant BridgeCommand
+    participant ToolAndCompilerPluginBridge Abstract Class
+    participant Project API
+    participant CustomCompilerPlugin
+    
+    BridgeCommand ->> ToolAndCompilerPluginBridge Abstract Class: Set a object through service loader
+    activate BridgeCommand
+    activate ToolAndCompilerPluginBridge Abstract Class
+    deactivate ToolAndCompilerPluginBridge Abstract Class
+    BridgeCommand ->> Project API: Perform compilation
+    note right of ToolAndCompilerPluginBridge Abstract Class: In the current implementation static state seems to get lost
+    activate Project API
+    Project API ->> CustomCompilerPlugin: Trigger init method
+    activate CustomCompilerPlugin
+    CustomCompilerPlugin ->> ToolAndCompilerPluginBridge Abstract Class: Get static object through Bridge class extending the abstract class
+    activate ToolAndCompilerPluginBridge Abstract Class
+    ToolAndCompilerPluginBridge Abstract Class ->> CustomCompilerPlugin: Receive object
+    deactivate ToolAndCompilerPluginBridge Abstract Class
+    deactivate Project API
+    deactivate CustomCompilerPlugin
+    deactivate BridgeCommand
+```
+
 Ballerina language has two main extension points:
 - Ballerina Tools
 - Ballerina Compiler Plugins
