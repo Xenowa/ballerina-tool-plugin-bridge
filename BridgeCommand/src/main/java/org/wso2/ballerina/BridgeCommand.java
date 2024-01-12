@@ -132,12 +132,6 @@ public class BridgeCommand implements BLauncherCmd {
         // Adding Any number of compiler plugins which implements the bridge interface
         try {
             jarURLs.add(
-                    new File("C:\\Users\\Tharana Wanigaratne\\Desktop\\ballerina-tool-plugin-bridge\\BridgeInterface\\build\\libs\\BridgeInterface-1.0.jar")
-                            .toURI()
-                            .toURL()
-            );
-
-            jarURLs.add(
                     new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0-all.jar")
                             .toURI()
                             .toURL()       
