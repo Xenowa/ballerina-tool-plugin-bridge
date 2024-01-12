@@ -1,6 +1,7 @@
 # Ballerina Tool & Plugin linking
 
 Ballerina language has two main extension points:
+
 - Ballerina Tools
 - Ballerina Compiler Plugins
 
@@ -9,6 +10,7 @@ This project aims to link a compiler plugin to a tool when a tool specific comma
 ## Ballerina Tools
 
 Allow developers to create custom Ballerina commands like:
+
 ```cmd
 bal bridge
 ```
@@ -16,6 +18,7 @@ bal bridge
 ## Ballerina Compiler Plugins
 
 Allow developers to extend features of the Ballerina compiler
+
 ```bal
 import org/custom_compiler_plugin as _;
 
@@ -28,7 +31,7 @@ public function main(){
 The following software should be installed locally
 
 - [Java version: 17](https://adoptium.net/temurin/releases/?version=17)
-- [Ballerina version: 2201.8.2](https://ballerina.io/downloads/archived/#swan-lake-archived-versions)
+- [Ballerina version: 2201.8.4](https://ballerina.io/downloads/archived/#swan-lake-archived-versions)
 
 ## Getting started
 

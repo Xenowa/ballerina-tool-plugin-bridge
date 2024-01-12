@@ -23,7 +23,9 @@ bal bridge
 - Pass a context from the tool to a compiler plugin
 
 ## Usage (Local)
-1. Replace the `jarURL` [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/blob/thin-jar-service-loading/BridgeCommand/src/main/java/org/wso2/ballerina/BridgeCommand.java#L128)
+
+1. Replace
+   the `jarURL` [here](https://github.com/Xenowa/ballerina-tool-plugin-bridge/blob/thin-jar-service-loading/BridgeCommand/src/main/java/org/wso2/ballerina/BridgeCommand.java#L128)
    with the absolute path to the compiler plugin
 
 2. Run and build jar file
@@ -66,7 +68,7 @@ bal push --repository=local
 📦<USER_HOME>/.ballerina
  ┗ 📦.config
     ┗**📜bal-tools.toml**
-    ┗**📜dist-2201.8.2.toml**
+    ┗**📜dist-2201.8.4-SNAPSHOT.toml**
 ```
 
 8. Include the tool details in them as follows
@@ -80,7 +82,7 @@ name = "tool_bridge"
 ```
 
 ```
-# (dist-2201.8.2.toml)
+# (dist-2201.8.4-SNAPSHOT.toml)
 [[tool]]
 id = "bridge"
 org = "tharana_wanigaratne"

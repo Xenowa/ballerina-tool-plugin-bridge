@@ -25,11 +25,9 @@ public class BridgeCommand implements BLauncherCmd {
     // =============================
     private final PrintStream outputStream;
     private final PrintStream errorStream;
-    private String projectPath;
-
     @CommandLine.Parameters(description = "Program arguments")
     private final List<String> argList = new ArrayList<>();
-
+    private String projectPath;
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
@@ -85,10 +83,10 @@ public class BridgeCommand implements BLauncherCmd {
         String userPath = checkPath();
 
         // Terminate program if the path is invalid
-        if(userPath == null){
+        if (userPath == null) {
             return;
         }
-        
+
         // Get access to the project API
         Project project = ProjectLoader.loadProject(Path.of(userPath));
 
@@ -100,22 +98,28 @@ public class BridgeCommand implements BLauncherCmd {
             // Load the compiler plugin
             URLClassLoader externalJarClassLoader = getUrlClassLoader();
 
-            // Read common interface implementations
-            ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
-                    ToolAndCompilerPluginBridge.class, externalJarClassLoader);
+            try {
+                // Read common interface implementations
+                ServiceLoader<ToolAndCompilerPluginBridge> externalScannerJars = ServiceLoader.load(
+                        ToolAndCompilerPluginBridge.class, externalJarClassLoader);
 
-            // Iterate through the loaded interfaces
-            String messageFromTool = "Sent from Ballerina Scan Tool";
-            for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
-                // Call the interface method and pass a context
-                externalScannerJar.sendMessageFromTool(messageFromTool);
+                // Iterate through the loaded interfaces
+                String messageFromTool = "Sent from Ballerina Scan Tool";
+
+                for (ToolAndCompilerPluginBridge externalScannerJar : externalScannerJars) {
+                    // Call the interface method and pass a context
+                    externalScannerJar.sendMessageFromTool(messageFromTool);
+                }
+
+                if (module.isDefaultModule()) {
+                    // Compile the project and engage the plugin once
+                    // If context has been passed correctly it will be displayed in the console
+                    project.currentPackage().getCompilation();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
 
-            if (module.isDefaultModule()) {
-                // Compile the project and engage the plugin once
-                // If context has been passed correctly it will be displayed in the console
-                project.currentPackage().getCompilation();
-            }
         });
 
         outputStream.println("bridge successful!");
@@ -132,7 +136,7 @@ public class BridgeCommand implements BLauncherCmd {
             throw new RuntimeException(e);
         }
 
-        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl});
+        URLClassLoader externalJarClassLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
         return externalJarClassLoader;
     }
 

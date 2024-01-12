@@ -1,5 +1,5 @@
 package org.wso2.ballerina;
 
 public interface ToolAndCompilerPluginBridge {
-     void sendMessageFromTool(String messageFromTool);
+    void sendMessageFromTool(String messageFromTool);
 }
