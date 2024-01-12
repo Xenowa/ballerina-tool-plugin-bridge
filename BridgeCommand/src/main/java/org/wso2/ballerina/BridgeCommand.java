@@ -102,12 +102,15 @@ public class BridgeCommand implements BLauncherCmd {
 
             // Read common interface implementations (Interface Plugin needs to be placed in 'bre/libs')
             try {
-                ServiceLoader<ToolAndCompilerPluginBridge> serviceLoader = ServiceLoader.load(
-                        ToolAndCompilerPluginBridge.class,
+                Class<?> serviceInterface = externalJarClassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
+                ServiceLoader<?> serviceLoader = ServiceLoader.load(
+                        serviceInterface,
                         externalJarClassLoader);
                 String messageFromTool = "Sent from Ballerina Scan Tool";
-                for (ToolAndCompilerPluginBridge service : serviceLoader) {
-                    service.sendMessageFromTool(messageFromTool);
+                for (Object service : serviceLoader) {
+                    service.getClass()
+                            .getMethod("sendMessageFromTool", String.class)
+                            .invoke(service, messageFromTool);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -129,7 +132,13 @@ public class BridgeCommand implements BLauncherCmd {
         // Adding Any number of compiler plugins which implements the bridge interface
         try {
             jarURLs.add(
-                    new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0.jar")
+                    new File("C:\\Users\\Tharana Wanigaratne\\Desktop\\ballerina-tool-plugin-bridge\\BridgeInterface\\build\\libs\\BridgeInterface-1.0.jar")
+                            .toURI()
+                            .toURL()
+            );
+
+            jarURLs.add(
+                    new File("C:\\Users\\Tharana Wanigaratne\\.ballerina\\repositories\\central.ballerina.io\\bala\\tharana_wanigaratne\\custom_compiler_plugin\\0.1.0\\java17\\compiler-plugin\\libs\\CustomCompilerPlugin-1.0-all.jar")
                             .toURI()
                             .toURL()       
             );
