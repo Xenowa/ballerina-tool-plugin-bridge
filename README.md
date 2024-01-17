@@ -3,35 +3,26 @@
 ```mermaid
 sequenceDiagram
     participant Main Thread
-    participant BridgeCommand
-    participant ToolAndCompilerPluginBridge1
-    participant Project API
-    participant ToolAndCompilerPluginBridge2
-    participant CustomCompilerPlugin
+    participant Bridge Interface
+    participant BridgeExtension
+    Main Thread ->> Bridge Interface: Use ServiceLoader
     activate Main Thread
-    Main Thread ->> Main Thread: Load CustomToolClassLoader
-    Main Thread ->> BridgeCommand: Start tool
-    activate BridgeCommand
-    BridgeCommand ->> ToolAndCompilerPluginBridge1: Set a object through Ballerina tool URLClassLoader
-    activate ToolAndCompilerPluginBridge1
-    deactivate ToolAndCompilerPluginBridge1
-    BridgeCommand ->> Main Thread: Set Ballerina Tool URLClassLoader
-    BridgeCommand ->> Project API: Perform package compilation
-    activate Project API
-    Project API ->> CustomCompilerPlugin: Trigger init method through Compiler plugin URLClassLoader
-    activate CustomCompilerPlugin
-    CustomCompilerPlugin ->> ToolAndCompilerPluginBridge2: Trigger get message method
-    activate ToolAndCompilerPluginBridge2
-    ToolAndCompilerPluginBridge2 ->> Main Thread: Get Tool URLClassLoader
-    Main Thread ->> ToolAndCompilerPluginBridge1: Trigger get class loaded message method
-    activate ToolAndCompilerPluginBridge1
-    ToolAndCompilerPluginBridge1 ->> ToolAndCompilerPluginBridge2: Send object
-    ToolAndCompilerPluginBridge2 ->> CustomCompilerPlugin: Send object
-    deactivate ToolAndCompilerPluginBridge1
-    deactivate ToolAndCompilerPluginBridge2
-    deactivate CustomCompilerPlugin
-    deactivate Project API
-    deactivate BridgeCommand
+    activate Bridge Interface
+    Bridge Interface ->> BridgeExtension: Load service and set object
+    deactivate Bridge Interface
+    activate BridgeExtension
+    deactivate BridgeExtension
+    Main Thread ->> Bridge Interface: Use ServiceLoader with same parent
+    activate Main Thread
+    activate Bridge Interface
+    Bridge Interface ->> BridgeExtension: Load service and get object
+    BridgeExtension ->> Bridge Interface: send object
+    Note right of Bridge Interface: null
+    Bridge Interface ->> Main Thread: send object
+    Note right of Main Thread: null
+    deactivate Bridge Interface
+    activate BridgeExtension
+    deactivate BridgeExtension
     deactivate Main Thread
 ```
 
