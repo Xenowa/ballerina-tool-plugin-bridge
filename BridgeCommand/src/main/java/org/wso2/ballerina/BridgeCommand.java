@@ -9,7 +9,6 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -17,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 @CommandLine.Command(name = "bridge", description = "Link with compiler plugins")
 public class BridgeCommand implements BLauncherCmd {
@@ -99,23 +99,20 @@ public class BridgeCommand implements BLauncherCmd {
             if (module.isDefaultModule()) {
                 // Load the Interface from compiler plugins
                 URLClassLoader externalJarClassLoader = getUrlClassLoader();
+
+                // Setting objects in the Compiler Plugin JARs
                 String messageFromTool = "Sent from Ballerina Scan Tool";
-                try {
-                    // Set the static message
-                    externalJarClassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge")
-                            .getMethod("sendMessageFromTool", String.class)
-                            .invoke(null, messageFromTool);
-
-                    // Pass URLClassLoader used by tool to compiler plugins
-                    Thread.currentThread().setContextClassLoader(externalJarClassLoader);
-
-                    // Perform project compilation to run concurrent custom rule analysis
-                    project.currentPackage().getCompilation();
-                } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                         IllegalAccessException e) {
-                    // If no custom rules compiler plugins were identified
-                    System.out.println("No custom rule compiler plugins located, proceeding with local analysis...");
+                ServiceLoader<ToolAndCompilerPluginBridge> services = ServiceLoader.load(
+                        ToolAndCompilerPluginBridge.class,
+                        externalJarClassLoader);
+                for (ToolAndCompilerPluginBridge service : services) {
+                    service.sendMessageFromTool(messageFromTool);
                 }
+
+                // Setting the used URLClassLoader to the main thread
+                Thread.currentThread().setContextClassLoader(externalJarClassLoader);
+
+                project.currentPackage().getCompilation();
             }
         });
 
@@ -133,7 +130,9 @@ public class BridgeCommand implements BLauncherCmd {
             throw new RuntimeException(e);
         }
 
-        return new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader()); // CustomToolClassLoader
+        return new URLClassLoader(new URL[]{jarUrl},
+                // CompilerPlugin.class.getClassLoader()); // SystemClassLoader
+                this.getClass().getClassLoader()); // CustomToolClassLoader
     }
 
     public String checkPath() {

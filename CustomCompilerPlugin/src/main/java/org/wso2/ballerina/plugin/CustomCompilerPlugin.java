@@ -1,14 +1,17 @@
 package org.wso2.ballerina.plugin;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import org.wso2.ballerina.ToolAndCompilerPluginBridge;
 
-public class CustomCompilerPlugin extends CompilerPlugin {
+public class CustomCompilerPlugin extends ToolAndCompilerPluginBridge {
     // Runs during compilation
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        System.out.println("Custom Compiler Plugin sharing context engaged!");
+        System.out.println("Service Loaded message: " + getMessageFromTool());
+    }
 
-        System.out.println("Service Loaded message: " + Bridge.getMessageFromTool());
+    @Override
+    public String customRulesCompilerPluginName() {
+        return "CustomCompilerPlugin";
     }
 }

@@ -1,29 +1,48 @@
 package org.wso2.ballerina;
 
-import java.lang.reflect.InvocationTargetException;
+import io.ballerina.projects.plugins.CompilerPlugin;
 
-public abstract class ToolAndCompilerPluginBridge {
-    private static volatile String messageFromTool = null; // volatile makes sure each thread gets most up-to-date value
+import java.lang.reflect.InvocationTargetException;
+import java.util.ServiceLoader;
+
+public abstract class ToolAndCompilerPluginBridge extends CompilerPlugin {
+    private String messageFromTool = null;
+
+
+    public String getClassLoadedMessage() {
+        return messageFromTool;
+    }
 
     // Method initiated by Ballerina Scan Tool
-    public static synchronized void sendMessageFromTool(String messageFromTool) {
-        if (ToolAndCompilerPluginBridge.messageFromTool == null) {
-            ToolAndCompilerPluginBridge.messageFromTool = messageFromTool;
+    public void sendMessageFromTool(String messageFromTool) {
+        System.out.println("Message set from tool: " + messageFromTool);
+        if (this.messageFromTool == null) {
+            this.messageFromTool = messageFromTool;
         }
     }
 
     // Method to be used by compiler plugins
-    public static synchronized String getMessageFromTool() {
+    public String getMessageFromTool() {
         if (messageFromTool == null) {
-            // Retrieve URLClassLoader passed by tool from compiler plugins
-            ClassLoader toolURLClassLoader = Thread.currentThread().getContextClassLoader();
-
+            // Retrieving URLClassLoader used by the tool using the Main Thread
+            ClassLoader toolURLCLassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                // Reflection is used since the class has been loaded by URLClassloader created during compilation
-                messageFromTool = (String) toolURLClassLoader
-                        .loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge")
-                        .getMethod("getClassLoadedMessage")
-                        .invoke(null);
+                Class<?> serviceInterface = toolURLCLassLoader.loadClass("org.wso2.ballerina.ToolAndCompilerPluginBridge");
+                ServiceLoader<?> services = ServiceLoader.load(
+                        serviceInterface,
+                        toolURLCLassLoader);
+
+                for (Object service : services) {
+                    String toolLoadedCompilerPluginName = (String) service.getClass()
+                            .getMethod("customRulesCompilerPluginName").invoke(service);
+
+                    String compilerPluginName = customRulesCompilerPluginName();
+
+                    if (toolLoadedCompilerPluginName.equals(compilerPluginName)) {
+                        messageFromTool = (String) service.getClass()
+                                .getMethod("getClassLoadedMessage").invoke(service);
+                    }
+                }
             } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException |
                      NoSuchMethodException e) {
                 System.out.println("Please run 'bal bridge' to engage custom rule compiler plugins!");
@@ -34,7 +53,5 @@ public abstract class ToolAndCompilerPluginBridge {
         return messageFromTool;
     }
 
-    public static synchronized String getClassLoadedMessage() {
-        return messageFromTool;
-    }
+    public abstract String customRulesCompilerPluginName();
 }
