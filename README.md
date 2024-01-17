@@ -1,40 +1,5 @@
 # Ballerina Tool & Plugin linking
 
-```mermaid
-sequenceDiagram
-    participant Main Thread
-    participant BridgeCommand
-    participant ToolAndCompilerPluginBridge1
-    participant Project API
-    participant ToolAndCompilerPluginBridge2
-    participant CustomCompilerPlugin
-    activate Main Thread
-    Main Thread ->> Main Thread: Load CustomToolClassLoader
-    Main Thread ->> BridgeCommand: Start tool
-    activate BridgeCommand
-    BridgeCommand ->> ToolAndCompilerPluginBridge1: Set a object through Ballerina tool URLClassLoader
-    activate ToolAndCompilerPluginBridge1
-    deactivate ToolAndCompilerPluginBridge1
-    BridgeCommand ->> Main Thread: Set Ballerina Tool URLClassLoader
-    BridgeCommand ->> Project API: Perform package compilation
-    activate Project API
-    Project API ->> CustomCompilerPlugin: Trigger init method through Compiler plugin URLClassLoader
-    activate CustomCompilerPlugin
-    CustomCompilerPlugin ->> ToolAndCompilerPluginBridge2: Trigger get message method
-    activate ToolAndCompilerPluginBridge2
-    ToolAndCompilerPluginBridge2 ->> Main Thread: Get Tool URLClassLoader
-    Main Thread ->> ToolAndCompilerPluginBridge1: Trigger get class loaded message method
-    activate ToolAndCompilerPluginBridge1
-    ToolAndCompilerPluginBridge1 ->> ToolAndCompilerPluginBridge2: Send object
-    ToolAndCompilerPluginBridge2 ->> CustomCompilerPlugin: Send object
-    deactivate ToolAndCompilerPluginBridge1
-    deactivate ToolAndCompilerPluginBridge2
-    deactivate CustomCompilerPlugin
-    deactivate Project API
-    deactivate BridgeCommand
-    deactivate Main Thread
-```
-
 Ballerina language has two main extension points:
 
 - Ballerina Tools
