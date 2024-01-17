@@ -16,13 +16,13 @@ sequenceDiagram
     activate Main Thread
     activate Bridge Interface
     Bridge Interface ->> BridgeExtension: Load service and get object
+    activate BridgeExtension
     BridgeExtension ->> Bridge Interface: send object
+    deactivate BridgeExtension
     Note right of Bridge Interface: null
     Bridge Interface ->> Main Thread: send object
-    Note right of Main Thread: null
     deactivate Bridge Interface
-    activate BridgeExtension
-    deactivate BridgeExtension
+    Note right of Main Thread: null
     deactivate Main Thread
 ```
 
