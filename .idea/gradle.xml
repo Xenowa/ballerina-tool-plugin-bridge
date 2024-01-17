@@ -9,8 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/BridgeCommand" />
-            <option value="$PROJECT_DIR$/CustomCompilerPlugin" />
+            <option value="$PROJECT_DIR$/MainProgram" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,4 +1,3 @@
 rootProject.name = 'ballerina-tool-plugin-bridge'
-include 'CustomCompilerPlugin'
-include 'BridgeCommand'
 
+include 'MainProgram'
