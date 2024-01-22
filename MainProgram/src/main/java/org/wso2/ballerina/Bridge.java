@@ -1,17 +1,20 @@
 package org.wso2.ballerina;
 
-public abstract class Bridge {
-    private static Reporter reporter = null;
+public class Bridge {
+    private static final Bridge INSTANCE = new Bridge();
+    private Reporter reporter = null;
 
     public void triggerReporter(String messageFromTool) {
-        reporter.reportIssue(messageFromTool);
+        INSTANCE.reporter.reportIssue(messageFromTool);
     }
 
     public void init(Reporter reporter) {
-        if (Bridge.reporter == null) {
-            Bridge.reporter = reporter;
+        if (INSTANCE.reporter == null) {
+            INSTANCE.reporter = reporter;
         }
     }
 
-    public abstract String getExtendedClassName();
+    public String getExtendedClassName() {
+        return null;
+    }
 }
