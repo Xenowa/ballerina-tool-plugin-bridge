@@ -8,7 +8,9 @@ public abstract class Bridge {
     }
 
     public void init(Reporter reporter) {
-        this.reporter = reporter;
+        if (Bridge.reporter == null) {
+            Bridge.reporter = reporter;
+        }
     }
 
     public abstract String getExtendedClassName();
