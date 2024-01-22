@@ -8,21 +8,16 @@ sequenceDiagram
     Main Thread ->> Bridge Interface: Use ServiceLoader
     activate Main Thread
     activate Bridge Interface
-    Bridge Interface ->> BridgeExtension: Load service and set object
+    Bridge Interface ->> Bridge Interface: initialize a static instance and set reporter
     deactivate Bridge Interface
-    activate BridgeExtension
-    deactivate BridgeExtension
     Main Thread ->> Bridge Interface: Use ServiceLoader with same parent
-    activate Main Thread
     activate Bridge Interface
-    Bridge Interface ->> BridgeExtension: Load service and get object
+    Bridge Interface ->> BridgeExtension: send object
     activate BridgeExtension
-    BridgeExtension ->> Bridge Interface: send object
+    BridgeExtension ->> Bridge Interface: send object to static reporter
     deactivate BridgeExtension
-    Note right of Bridge Interface: null
-    Bridge Interface ->> Main Thread: send object
+    Bridge Interface ->> Main Thread: retrieve object through static reporter
     deactivate Bridge Interface
-    Note right of Main Thread: null
     deactivate Main Thread
 ```
 
