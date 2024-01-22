@@ -9,3 +9,7 @@ repositories {
 
 dependencies {
 }
+
+application {
+    mainClass = 'org.wso2.ballerina.Main'
+}

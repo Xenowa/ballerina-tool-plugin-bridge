@@ -4,19 +4,27 @@ import java.util.ServiceLoader;
 
 public class Main {
     public static void main(String[] args) {
+        serviceLoaderBasedApproach();
+//        classLoaderBasedApproach();
+    }
+
+    public static void classLoaderBasedApproach() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    }
+
+    public static void serviceLoaderBasedApproach() {
         ServiceLoader<Bridge> services = ServiceLoader.load(Bridge.class);
-        String message = "Hello Ballerina";
+        Reporter localReporter = new Reporter();
 
         // Setting the messages to the loaded services
         for (Bridge service : services) {
-            service.setMessage(message);
-            System.out.println("Message set: " + service.getMessage());
+            service.init(localReporter);
         }
 
         // Retrieving the messages
         ServiceLoader<Bridge> services2 = ServiceLoader.load(Bridge.class);
         for (Bridge service : services2) {
-            System.out.println("Message retrieved: " + service.getMessage());
+            service.triggerReporter("Message sent from the tool!");
         }
     }
 }
